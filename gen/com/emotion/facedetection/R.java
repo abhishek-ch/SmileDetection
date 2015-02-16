@@ -65,9 +65,10 @@ containing a value of this type.
         public static final int haarcascade_eye_tree_eyeglasses=0x7f040001;
         public static final int haarcascade_frontalface_alt=0x7f040002;
         public static final int haarcascade_mcs_mouth=0x7f040003;
-        public static final int haarcascade_smile=0x7f040004;
-        public static final int lbpcascade_frontalface=0x7f040005;
-        public static final int smile5=0x7f040006;
+        public static final int lbpcascade_frontalface=0x7f040004;
+        public static final int sad_custom1=0x7f040005;
+        public static final int sad_pre=0x7f040006;
+        public static final int smile5=0x7f040007;
     }
     public static final class string {
         public static final int app_name=0x7f070000;

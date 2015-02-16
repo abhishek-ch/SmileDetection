@@ -9,7 +9,6 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfRect;
-import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -25,17 +24,15 @@ import android.view.ContextMenu;
 import android.view.SurfaceHolder;
 
 class FaceDetectionView extends SampleCvViewBase {
-	private static final String TAG = "Sample::FdView";
+	private static final String TAG = "Test::FaceDetectionView";
 	private Mat mRgba;
 	private Mat mGray;
-	private File mCascadeFile, mEyeFile, mMouthFile, mSmileFile;
-	private CascadeClassifier mJavaDetector, mEyeDetector, mSmileDetector,
+	private File mCascadeFile, mEyeFile, mMouthFile, mSadFile;
+	private CascadeClassifier mJavaDetector, mEyeDetector, mSadDetector,
 			mMouthDetector;
 	private DetectionBasedTracker mNativeDetector;
 
 	private static final Scalar FACE_RECT_COLOR = new Scalar(255, 167, 192, 19);
-	private static final Scalar EYE_RECT_COLOR = new Scalar(255, 0, 0, 255);
-	private static final Scalar MOUTH_RECT_COLOR = new Scalar(181, 12, 115, 255);
 
 	public static final int JAVA_DETECTOR = 0;
 	public static final int NATIVE_DETECTOR = 1;
@@ -146,29 +143,29 @@ class FaceDetectionView extends SampleCvViewBase {
 
 			// Changes for Face Made here
 			// If want only Smile then use smile5 xml file
-			InputStream smile = context.getResources().openRawResource(
-					R.raw.haarcascade_smile);
+			InputStream sad = context.getResources().openRawResource(
+					R.raw.sad_custom1);
 			File smileDir = context
 					.getDir("cascadesmile", Context.MODE_PRIVATE);
-			mSmileFile = new File(smileDir, "haarcascade_smile.xml");
-			FileOutputStream os3 = new FileOutputStream(mSmileFile);
+			mSadFile = new File(smileDir, "sad_custom1.xml");
+			FileOutputStream os3 = new FileOutputStream(mSadFile);
 
 			byte[] buffer3 = new byte[4096];
 			int bytesRead3;
-			while ((bytesRead3 = smile.read(buffer3)) != -1) {
+			while ((bytesRead3 = sad.read(buffer3)) != -1) {
 				os3.write(buffer3, 0, bytesRead3);
 			}
-			smile.close();
+			sad.close();
 			os3.close();
 
-			mSmileDetector = new CascadeClassifier(mSmileFile.getAbsolutePath());
-			if (mSmileDetector.empty()) {
+			mSadDetector = new CascadeClassifier(mSadFile.getAbsolutePath());
+			if (mSadDetector.empty()) {
 				Log.e(TAG, "Failed to load Smile cascade classifier");
-				mSmileDetector = null;
+				mSadDetector = null;
 			} else {
 				Log.i(TAG,
 						"Loaded Smile cascade classifier from "
-								+ mSmileFile.getAbsolutePath());
+								+ mSadFile.getAbsolutePath());
 			}
 
 			mNativeDetector = new DetectionBasedTracker(
@@ -211,7 +208,7 @@ class FaceDetectionView extends SampleCvViewBase {
 	}
 
 	Rect[] mouthArray;
-	Rect[] smileArray;
+	Rect[] sadArray;
 
 	@Override
 	protected Bitmap processFrame(VideoCapture capture) {
@@ -231,7 +228,7 @@ class FaceDetectionView extends SampleCvViewBase {
 		MatOfRect faces = new MatOfRect();
 	//	MatOfRect eyes = new MatOfRect();
 		MatOfRect mouth = new MatOfRect();
-		MatOfRect smile = new MatOfRect();
+		MatOfRect sad = new MatOfRect();
 
 		if (mDetectorType == JAVA_DETECTOR) {
 			if (mJavaDetector != null)
@@ -260,50 +257,8 @@ class FaceDetectionView extends SampleCvViewBase {
 			Rect roi = new Rect((int) facesArray[0].tl().x,
 					(int) (facesArray[0].tl().y), facesArray[0].width,
 					(int) (facesArray[0].height));//
-			// taking inputs from nustrat opencv example
-			// check above, using tl of x and tl of y.other wise it will give
-			// runtime errors
-			//Mat cropped = new Mat();
-			// cropped = mGray.submat(facesArray[0]);// yuppie!, this did the
-			// trick!...everything else was failing
 			// refer to opencv 2.4 tut pdf
 			if (roi.x >= 0 && roi.width >= 0 && roi.y >= 0 && roi.height >= 0) {
-//				cropped = mGray.submat(roi);
-//
-//				// cropped.copyTo(mGray.submat(roi));
-//				if (mEyeDetector != null && iEyeType == 0)
-//					mEyeDetector.detectMultiScale(cropped, eyes, 1.1, 2, 2,
-//							new Size(mAbsoluteFaceSize, mAbsoluteFaceSize),
-//							new Size());
-//				else
-//					Log.i("Fdvuew", "mEyeDetector is NULL");
-//
-//				// release the memory
-//				cropped.release();
-//				cropped = null;
-//
-//				Rect[] eyesArray;
-//				eyesArray = eyes.toArray();
-			//	Point x1 = new Point();
-				// using opencv tutorials for circle, its working fine now.
-//				for (int i = 0; i < eyesArray.length; i++) {
-//
-//					x1.x = facesArray[0].x + eyesArray[i].x
-//							+ eyesArray[i].width * 0.5;
-//					x1.y = facesArray[0].y + eyesArray[i].y
-//							+ eyesArray[i].height * 0.5;
-//					int Radius = (int) ((eyesArray[i].width + eyesArray[i].height) * 0.25);
-//					Core.circle(mRgba, x1, Radius, EYE_RECT_COLOR, 3);
-//
-//					// x1.y=faces[i].y + eyes[j].y + eyes[j].height*0.5;
-//
-//					// Core.rectangle(mRgba,eyesArray[i].tl(),
-//					// eyesArray[i].br(), EYE_RECT_COLOR, 3);
-//					// x1.x=eyesArray[i].tl().x + facesArray[0].width;
-//					// x1.y=eyesArray[i].tl().y + facesArray[0].width;
-//					// Core.rectangle(mRgba,x1, eyesArray[i].br(),
-//					// EYE_RECT_COLOR, 3);
-//				}
 
 				// is Menu is Selected
 				if (isTurnedOn) {
@@ -323,12 +278,12 @@ class FaceDetectionView extends SampleCvViewBase {
 					cropped_Smile = mGray.submat(roi_Mouth);
 
 					CascadeClassifier classifier = mMouthDetector;
-					CascadeClassifier classifier_Smile = null;
+					CascadeClassifier classifier_Sad = null;
 					if (strTypeSelected.equals("Mouth")) {
 						classifier = mMouthDetector;
-						classifier_Smile = mSmileDetector;
+						classifier_Sad = mSadDetector;
 					} else if (strTypeSelected.equals("Smile")) {
-						classifier = mSmileDetector;
+						classifier = mSadDetector;
 					}
 
 					if (classifier != null)
@@ -340,8 +295,8 @@ class FaceDetectionView extends SampleCvViewBase {
 
 					// Smile Detector Classsifier only in-case of Mouth
 					// detection
-					if (classifier_Smile != null)
-						classifier_Smile.detectMultiScale(cropped_Smile, smile,
+					if (classifier_Sad != null)
+						classifier_Sad.detectMultiScale(cropped_Smile, sad,
 								1.1, 0, 1, new Size(mAbsoluteFaceSize,
 										mAbsoluteFaceSize), new Size());
 					else
@@ -352,32 +307,25 @@ class FaceDetectionView extends SampleCvViewBase {
 					cropped_Mouth = null;
 
 					mouthArray = mouth.toArray();
-					smileArray = smile.toArray();
-					 Log.i("smileArraysmileArray","smileArray Count"+smileArray.length+" mouthArray "+mouthArray.length);
-					Point x2 = new Point();
-					for (int i = 0; i < mouthArray.length; i++) {
-						// int Radius=(int)((mouthArray[i].width +
-						// mouthArray[i].height)*0.25 );
-						// x2.x=facesArray[0].x + mouthArray[i].tl().x +Radius;
-						// x2.y=mouthArray[i].br().y + facesArray[0].height;
-						// Core.rectangle(mRgba, x2, mouthArray[i].br(),
-						// MOUTH_RECT_COLOR, 3);
-						x2.x = facesArray[0].x + mouthArray[i].x
-								+ mouthArray[i].width * 0.5;
-						x2.y = facesArray[0].y + mouthArray[i].y
-								+ mouthArray[i].height * 0.5;
-						if (x2.y > (facesArray[0].y * 5)) {
-							int Radius = (int) ((mouthArray[i].width + mouthArray[i].height) * 0.20);
-							Core.circle(mRgba, x2, Radius, MOUTH_RECT_COLOR, 4);
-							if (iCircleType == 1) {
-								break;
-							}
-						}
-
-					}
+					sadArray = sad.toArray();
+				//	Point x2 = new Point();
+//					for (int i = 0; i < mouthArray.length; i++) {
+//						x2.x = facesArray[0].x + mouthArray[i].x
+//								+ mouthArray[i].width * 0.5;
+//						x2.y = facesArray[0].y + mouthArray[i].y
+//								+ mouthArray[i].height * 0.5;
+//						if (x2.y > (facesArray[0].y * 5)) {
+//							int Radius = (int) ((mouthArray[i].width + mouthArray[i].height) * 0.20);
+//							Core.circle(mRgba, x2, Radius, MOUTH_RECT_COLOR, 4);
+//							if (iCircleType == 1) {
+//								break;
+//							}
+//						}
+//
+//					}
 
 				}
-				smile.release();
+				sad.release();
 				faces.release();
 				mouth.release();
 				//eyes.release();
@@ -408,8 +356,8 @@ class FaceDetectionView extends SampleCvViewBase {
 	}
 
 	protected int updateMouth() {
-		if (smileArray != null)
-			return smileArray.length;
+		if (sadArray != null)
+			return sadArray.length;
 		else
 			return 0;
 	}
