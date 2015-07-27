@@ -37,6 +37,7 @@ public class FdActivity extends Activity {
 				case LoaderCallbackInterface.SUCCESS:
 				{
 					Log.i(TAG, "OpenCV loaded successfully");
+					//define new API
 
 					// Load native libs after OpenCV initialization
 					System.loadLibrary("detection_based_tracker");
